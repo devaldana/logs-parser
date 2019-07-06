@@ -13,7 +13,6 @@ import static com.wallethub.util.Global.DURATION_ARG;
 import static com.wallethub.util.Global.START_DATE_ARG;
 import static com.wallethub.util.Global.THRESHOLD_ARG;
 
-
 @Configuration
 public class GeneralConfig {
 
