@@ -1,6 +1,7 @@
 package com.wallethub.config;
 
 import com.wallethub.batch.mappers.RequestMapper;
+import com.wallethub.batch.providers.RequestQueryProvider;
 import com.wallethub.domain.Request;
 import com.wallethub.util.ArgumentsData;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import javax.persistence.EntityManagerFactory;
-
 import java.util.List;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
@@ -37,15 +36,18 @@ public class BatchConfig {
     private final StepBuilderFactory stepBuilderFactory;
     private final ArgumentsData argumentsData;
     private final EntityManagerFactory entityManagerFactory;
+    private final RequestQueryProvider queryProvider;
 
     public BatchConfig(final JobBuilderFactory jobBuilderFactory,
                        final StepBuilderFactory stepBuilderFactory,
                        final EntityManagerFactory entityManagerFactory,
+                       final RequestQueryProvider  queryProvider,
                        final ArgumentsData argumentsData) {
 
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.entityManagerFactory = entityManagerFactory;
+        this.queryProvider = queryProvider;
         this.argumentsData = argumentsData;
     }
 
@@ -65,7 +67,7 @@ public class BatchConfig {
         return new JpaPagingItemReaderBuilder<Request>()
                 .name("jpaReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select r from Request r where r.id < 228858")
+                .queryProvider(queryProvider)
                 .pageSize(1000)
                 .build();
     }

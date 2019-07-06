@@ -6,10 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@NamedQuery(name="findRequestByDate", query = "SELECT r FROM Request r WHERE r.date = :date")
 public class Request {
 
     @Id
