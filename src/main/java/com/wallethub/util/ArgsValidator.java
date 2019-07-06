@@ -22,12 +22,14 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class ArgsValidator {
 
     public static void validateArgs(final ApplicationArguments args) {
+        printHeader();
         validateArgsNames(args);
         validateArgsValues(args);
+        printFooter();
     }
 
     private static void validateArgsNames(final ApplicationArguments args){
-        log.info("Validating args names");
+        log.info("Validating args names...");
         final Set<String> argsNames = args.getOptionNames();
 
         if(!argsNames.contains(START_DATE_ARG) ||
@@ -40,7 +42,7 @@ public class ArgsValidator {
     }
 
     private static void validateArgsValues(final ApplicationArguments args) {
-        log.info("Validating args values");
+        log.info("Validating args values...");
         final List<String> startDateValues = args.getOptionValues(START_DATE_ARG);
         final List<String> durationValues = args.getOptionValues(DURATION_ARG);
         final List<String> thresholdValues = args.getOptionValues(THRESHOLD_ARG);
@@ -98,5 +100,16 @@ public class ArgsValidator {
         final File accessLog = pathToFile.toFile();
         if(!accessLog.isFile()) throw new IllegalArgumentException("Provide a valid file path");
         if(!accessLog.canRead()) throw new IllegalStateException("The file can not be read, please check it permissions");
+    }
+
+    private static void printHeader() {
+        StringBuilder header = new StringBuilder();
+        header.append("ArgsValidator initialized\n");
+        header.append("\n:. Starting validation of arguments...\n");
+        log.info(header.toString());
+    }
+
+    private static void printFooter() {
+        log.info("Finishing validations...\n\n.: Arguments successfully validated!\n");
     }
 }

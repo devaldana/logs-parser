@@ -1,6 +1,7 @@
 package com.wallethub.config;
 
 import com.wallethub.batch.mappers.RequestMapper;
+import com.wallethub.batch.writers.RequestWriter;
 import com.wallethub.domain.Request;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -31,6 +32,7 @@ public class BatchConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
+    private final RequestWriter requestWriter;
 
     @Value("${accesslog}")
     private String accessLogFilePath;
@@ -38,11 +40,13 @@ public class BatchConfig {
     @Autowired
     public BatchConfig(final JobBuilderFactory jobBuilderFactory,
                        final StepBuilderFactory stepBuilderFactory,
-                       final EntityManagerFactory entityManagerFactory) {
+                       final EntityManagerFactory entityManagerFactory,
+                       final RequestWriter requestWriter) {
 
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.entityManagerFactory = entityManagerFactory;
+        this.requestWriter = requestWriter;
     }
 
     @Bean
@@ -57,18 +61,11 @@ public class BatchConfig {
     }
 
     @Bean
-    public JpaItemWriter<Request> writer() {
-        final JpaItemWriter<Request> writer = new JpaItemWriter<>();
-        writer.setEntityManagerFactory(entityManagerFactory);
-        return writer;
-    }
-
-    @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                                 .<Request, Request>chunk(10000)
+                                 .<Request, Request>chunk(1000)
                                  .reader(reader())
-                                 .writer(writer())
+                                 .writer(requestWriter)
                                  .build();
     }
 
