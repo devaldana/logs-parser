@@ -10,7 +10,11 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
@@ -19,6 +23,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import javax.persistence.EntityManagerFactory;
+
+import java.util.List;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
@@ -54,6 +60,33 @@ public class BatchConfig {
         return reader;
     }
 
+    @Bean
+    public JpaPagingItemReader<Request> itemReader() {
+        return new JpaPagingItemReaderBuilder<Request>()
+                .name("jpaReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("select r from Request r where r.id < 228858")
+                .pageSize(1000)
+                .build();
+    }
+
+    @Bean
+    public Step step2() {
+        return stepBuilderFactory.get("retrieveFilteredRequests")
+                .<Request, Request>chunk(1000)
+                .reader(itemReader())
+                .writer(new RequestWriter())
+                .build();
+    }
+
+    class RequestWriter implements ItemWriter<Request> {
+
+        @Override
+        public void write(List<? extends Request> list) throws Exception {
+            list.stream().forEach(System.out::println);
+        }
+    }
+
     @Bean("requestJpaItemWriter")
     public JpaItemWriter<Request> requestJpaItemWriter() {
         final JpaItemWriter<Request> writer = new JpaItemWriter<>();
@@ -74,7 +107,8 @@ public class BatchConfig {
     public Job importLogsJob() {
         return jobBuilderFactory.get("importLogsJob")
                                 .incrementer(new RunIdIncrementer())
-                                .flow(step1())
-                                .end().build();
+                                .start(step1())
+                                .next(step2())
+                                .build();
     }
 }
