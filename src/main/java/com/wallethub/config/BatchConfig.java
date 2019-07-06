@@ -3,6 +3,7 @@ package com.wallethub.config;
 import com.wallethub.batch.mappers.RequestMapper;
 import com.wallethub.batch.writers.RequestWriter;
 import com.wallethub.domain.Request;
+import com.wallethub.util.ArgumentsData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -10,17 +11,13 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-
-import javax.persistence.EntityManagerFactory;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
@@ -31,28 +28,25 @@ public class BatchConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final EntityManagerFactory entityManagerFactory;
     private final RequestWriter requestWriter;
-
-    @Value("${accesslog}")
-    private String accessLogFilePath;
+    private final ArgumentsData argumentsData;
 
     @Autowired
     public BatchConfig(final JobBuilderFactory jobBuilderFactory,
                        final StepBuilderFactory stepBuilderFactory,
-                       final EntityManagerFactory entityManagerFactory,
-                       final RequestWriter requestWriter) {
+                       final RequestWriter requestWriter,
+                       final ArgumentsData argumentsData) {
 
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
-        this.entityManagerFactory = entityManagerFactory;
         this.requestWriter = requestWriter;
+        this.argumentsData = argumentsData;
     }
 
     @Bean
     public FlatFileItemReader<Request> reader() {
         final FlatFileItemReader<Request> reader = new FlatFileItemReader<>();
-        reader.setResource(new FileSystemResource(accessLogFilePath));
+        reader.setResource(new FileSystemResource(argumentsData.getAccessLogFilePath()));
         final DefaultLineMapper<Request> lineMapper = new DefaultLineMapper<>();
         lineMapper.setLineTokenizer(new DelimitedLineTokenizer(LOG_FILE_DELIMITER));
         lineMapper.setFieldSetMapper(new RequestMapper());
