@@ -25,11 +25,10 @@ public class GeneralConfig {
 
     @Bean
     public ArgumentsData argumentsData() {
-        ArgumentsData argumentsData = new ArgumentsData();
-        argumentsData.setAccessLogFilePath(env.getProperty(ACCESS_LOG_FILE_PATH_ARG));
-        argumentsData.setStartDate(Util.parseStringToLocalDateTime(env.getProperty(START_DATE_ARG), DOT_SEPARATOR));
-        argumentsData.setDuration(Duration.findByName(env.getProperty(DURATION_ARG)).get());
-        argumentsData.setThreshold(Integer.valueOf(env.getProperty(THRESHOLD_ARG)));
-        return argumentsData;
+        return ArgumentsData.with()
+                            .accessLogFilePath(env.getProperty(ACCESS_LOG_FILE_PATH_ARG))
+                            .startDate(Util.parseStringToLocalDateTime(env.getProperty(START_DATE_ARG), DOT_SEPARATOR))
+                            .duration(Duration.findByName(env.getProperty(DURATION_ARG)).get())
+                            .threshold(Integer.valueOf(env.getProperty(THRESHOLD_ARG))).build();
     }
 }
