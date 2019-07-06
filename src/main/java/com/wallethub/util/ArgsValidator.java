@@ -37,7 +37,7 @@ public class ArgsValidator {
            !argsNames.contains(THRESHOLD_ARG) ||
            !argsNames.contains(ACCESS_LOG_FILE_PATH_ARG)) {
 
-            throw new IllegalArgumentException("At least one argument is missing");
+            throw new IllegalArgumentException("At least one argument is missing.");
         }
     }
 
@@ -62,7 +62,7 @@ public class ArgsValidator {
 
         if(invalidArgList(startDateValues) || invalidArgList(durationValues) ||
            invalidArgList(thresholdValues) || invalidArgList(accessLogPathValues)) {
-            throw new IllegalArgumentException("Invalid argument: please review the inputs");
+            throw new IllegalArgumentException("Invalid argument: please review the inputs.");
         }
     }
 
@@ -75,38 +75,38 @@ public class ArgsValidator {
         try {
             parseStringToLocalDateTime(startDate, DOT_SEPARATOR);
         } catch (Exception exception) {
-            throw new IllegalArgumentException("Invalid startDate argument");
+            throw new IllegalArgumentException("Invalid startDate argument.");
         }
     }
 
     private static void validateDuration(final String duration) {
         log.info("Validating duration argument: {}", duration);
         Duration.findByName(duration)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid duration argument"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid duration argument."));
     }
 
     private static void validateThreshold(final String threshold) {
         log.info("Validating threshold argument: {}", threshold);
+        final int thresholdNumber;
         try {
-            Integer.parseInt(threshold);
+            thresholdNumber = Integer.parseInt(threshold);
         } catch (Exception exception) {
-            throw new IllegalArgumentException("Invalid threshold argument");
+            throw new IllegalArgumentException("Invalid threshold argument, must be a number.");
         }
+        if(thresholdNumber <= 0)
+            throw new IllegalArgumentException("Threshold must be greater than zero (0).");
     }
 
     private static void validateAccessLogFilePath(final String accessLogFilePath) {
         log.info("Validating accessLogFilePath argument: {}", accessLogFilePath);
         final Path pathToFile = Paths.get(accessLogFilePath);
         final File accessLog = pathToFile.toFile();
-        if(!accessLog.isFile()) throw new IllegalArgumentException("Provide a valid file path");
-        if(!accessLog.canRead()) throw new IllegalStateException("The file can not be read, please check it permissions");
+        if(!accessLog.isFile()) throw new IllegalArgumentException("Provide a valid file path.");
+        if(!accessLog.canRead()) throw new IllegalStateException("The file can not be read, please check it permissions.");
     }
 
     private static void printHeader() {
-        StringBuilder header = new StringBuilder();
-        header.append("ArgsValidator initialized\n");
-        header.append("\n:. Starting validation of arguments...\n");
-        log.info(header.toString());
+        log.info("ArgsValidator initialized\n\n:. Starting validation of arguments...\n");
     }
 
     private static void printFooter() {

@@ -16,7 +16,7 @@ public enum Duration {
 
     public static Optional<Duration> findByName(final String name) {
         return Stream.of(values())
-                     .filter( duration -> duration.name.equalsIgnoreCase(name))
+                     .filter(duration -> duration.name.equalsIgnoreCase(name))
                      .findFirst();
     }
 }

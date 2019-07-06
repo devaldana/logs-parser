@@ -9,6 +9,7 @@ final public class Global {
     public static final String DOT_SEPARATOR = "\\.";
     public static final String SPACE_SEPARATOR = "\\s";
     public static final String LOG_FILE_DELIMITER = "|";
+    public static final String ISO_TIME_VALUE_INDICATOR = "T";
 
     private Global() {}
 }

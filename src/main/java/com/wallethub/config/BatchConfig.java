@@ -1,7 +1,6 @@
 package com.wallethub.config;
 
 import com.wallethub.batch.mappers.RequestMapper;
-import com.wallethub.batch.writers.RequestWriter;
 import com.wallethub.domain.Request;
 import com.wallethub.util.ArgumentsData;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +10,15 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+
+import javax.persistence.EntityManagerFactory;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
@@ -28,18 +29,17 @@ public class BatchConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final RequestWriter requestWriter;
     private final ArgumentsData argumentsData;
+    private final EntityManagerFactory entityManagerFactory;
 
-    @Autowired
     public BatchConfig(final JobBuilderFactory jobBuilderFactory,
                        final StepBuilderFactory stepBuilderFactory,
-                       final RequestWriter requestWriter,
+                       final EntityManagerFactory entityManagerFactory,
                        final ArgumentsData argumentsData) {
 
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
-        this.requestWriter = requestWriter;
+        this.entityManagerFactory = entityManagerFactory;
         this.argumentsData = argumentsData;
     }
 
@@ -54,12 +54,19 @@ public class BatchConfig {
         return reader;
     }
 
+    @Bean("requestJpaItemWriter")
+    public JpaItemWriter<Request> requestJpaItemWriter() {
+        final JpaItemWriter<Request> writer = new JpaItemWriter<>();
+        writer.setEntityManagerFactory(entityManagerFactory);
+        return writer;
+    }
+
     @Bean
     public Step step1() {
-        return stepBuilderFactory.get("step1")
-                                 .<Request, Request>chunk(1000)
+        return stepBuilderFactory.get("loadAllRequestsToDatabase")
+                                 .<Request, Request>chunk(10000)
                                  .reader(reader())
-                                 .writer(requestWriter)
+                                 .writer(requestJpaItemWriter())
                                  .build();
     }
 
