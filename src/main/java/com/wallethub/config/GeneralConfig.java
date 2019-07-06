@@ -29,6 +29,7 @@ public class GeneralConfig {
                             .accessLogFilePath(env.getProperty(ACCESS_LOG_FILE_PATH_ARG))
                             .startDate(Util.parseStringToLocalDateTime(env.getProperty(START_DATE_ARG), DOT_SEPARATOR))
                             .duration(Duration.findByName(env.getProperty(DURATION_ARG)).get())
-                            .threshold(Integer.valueOf(env.getProperty(THRESHOLD_ARG))).build();
+                            .threshold(Integer.valueOf(env.getProperty(THRESHOLD_ARG)))
+                            .build();
     }
 }
