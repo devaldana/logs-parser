@@ -12,6 +12,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
@@ -19,11 +20,13 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import javax.persistence.EntityManagerFactory;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
@@ -74,12 +77,39 @@ public class BatchConfig {
     }
 
     @Bean
+    public ItemProcessor<BlockedIp, BlockedIp> itemProcessor() {
+        return (blockedIp) -> {
+            blockedIp.setId(null);
+            blockedIp.setMessage(getBlockedIpMessage(blockedIp));
+            return blockedIp;
+        };
+    }
+
+    private String getBlockedIpMessage(final BlockedIp blockedIp){
+        return new StringBuilder()
+                    .append("Blocked because of exceed the requests threshold between ")
+                    .append(argumentsData.getStartDate())
+                    .append(" and ")
+                    .append(argumentsData.getEndDate())
+                    .append(", number of attempts: ")
+                    .append(blockedIp.getAttempts())
+                    .toString();
+    }
+
+    @Bean
     public Step step2() {
         return stepBuilderFactory.get("retrieveFilteredRequests")
                 .<BlockedIp, BlockedIp>chunk(1000000)
                 .reader(itemReader())
-                .writer(new RequestWriter())
+                .processor(itemProcessor())
+                .writer(compositeItemWriter())
                 .build();
+    }
+
+    public CompositeItemWriter<BlockedIp> compositeItemWriter() {
+        CompositeItemWriter<BlockedIp> writer = new CompositeItemWriter<>();
+        writer.setDelegates(Arrays.asList(new RequestWriter(), blockedIpJpaItemWriter()));
+        return writer;
     }
 
     class RequestWriter implements ItemWriter<BlockedIp> {
@@ -90,9 +120,16 @@ public class BatchConfig {
         }
     }
 
-    @Bean("requestJpaItemWriter")
+    @Bean
     public JpaItemWriter<Request> requestJpaItemWriter() {
         final JpaItemWriter<Request> writer = new JpaItemWriter<>();
+        writer.setEntityManagerFactory(entityManagerFactory);
+        return writer;
+    }
+
+    @Bean
+    public JpaItemWriter<BlockedIp> blockedIpJpaItemWriter() {
+        final JpaItemWriter<BlockedIp> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
         return writer;
     }
@@ -110,8 +147,8 @@ public class BatchConfig {
     public Job importLogsJob() {
         return jobBuilderFactory.get("importLogsJob")
                                 .incrementer(new RunIdIncrementer())
-                                .start(step1())
-                                .next(step2())
+                                .start(step2())
+                                // .next(step2())
                                 .build();
     }
 }
