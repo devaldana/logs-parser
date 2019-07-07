@@ -39,7 +39,7 @@ public class StepsBuilder {
     private final ArgumentsData argumentsData;
     private final EntityManagerFactory entityManagerFactory;
     private final BlockedIpQueryProvider queryProvider;
-
+    //TODO: what about chunk size?
     /*
      * = = = = = = = = = = = = = = STEP 1 CONFIG  = = = = = = = = = = = = = =
      *

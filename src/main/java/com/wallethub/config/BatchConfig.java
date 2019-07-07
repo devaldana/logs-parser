@@ -2,13 +2,19 @@ package com.wallethub.config;
 
 import com.wallethub.batch.builders.StepsBuilder;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
 @Configuration
 @AllArgsConstructor
 @EnableBatchProcessing
@@ -23,6 +29,22 @@ public class BatchConfig {
                 .incrementer(new RunIdIncrementer())
                 .start(stepsBuilder.step1())
                 .next(stepsBuilder.step2())
+                .listener(jobExecutionListener())
                 .build();
+    }
+
+    private JobExecutionListener jobExecutionListener() {
+        return new JobExecutionListener() {
+            public void beforeJob(JobExecution jobExecution) {
+                // Implementation not necessary at this time
+            }
+
+            public void afterJob(JobExecution jobExecution) {
+                final long start = jobExecution.getCreateTime().getTime();
+                final long end = jobExecution.getEndTime().getTime();
+                final long totalSeconds = TimeUnit.SECONDS.convert(end - start, TimeUnit.MILLISECONDS);
+                log.info("Job total execution time: {}s", totalSeconds);
+            }
+        };
     }
 }
