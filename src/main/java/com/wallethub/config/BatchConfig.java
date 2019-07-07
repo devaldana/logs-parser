@@ -55,7 +55,6 @@ public class BatchConfig {
         this.argumentsData = argumentsData;
     }
 
-    @Bean
     public FlatFileItemReader<Request> reader() {
         final FlatFileItemReader<Request> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(argumentsData.getAccessLogFilePath()));
@@ -66,7 +65,6 @@ public class BatchConfig {
         return reader;
     }
 
-    @Bean
     public JpaPagingItemReader<BlockedIp> itemReader() {
         return new JpaPagingItemReaderBuilder<BlockedIp>()
                 .name("jpaReader")
@@ -76,7 +74,6 @@ public class BatchConfig {
                 .build();
     }
 
-    @Bean
     public ItemProcessor<BlockedIp, BlockedIp> itemProcessor() {
         return (blockedIp) -> {
             blockedIp.setId(null);
@@ -87,7 +84,9 @@ public class BatchConfig {
 
     private String getBlockedIpMessage(final BlockedIp blockedIp){
         return new StringBuilder()
-                    .append("Blocked because of exceed the requests threshold between ")
+                    .append("Blocked because of exceed the requests threshold [")
+                    .append(argumentsData.getThreshold())
+                    .append("] between ")
                     .append(argumentsData.getStartDate())
                     .append(" and ")
                     .append(argumentsData.getEndDate())
@@ -96,7 +95,6 @@ public class BatchConfig {
                     .toString();
     }
 
-    @Bean
     public Step step2() {
         return stepBuilderFactory.get("retrieveFilteredRequests")
                 .<BlockedIp, BlockedIp>chunk(1000000)
@@ -108,33 +106,26 @@ public class BatchConfig {
 
     public CompositeItemWriter<BlockedIp> compositeItemWriter() {
         CompositeItemWriter<BlockedIp> writer = new CompositeItemWriter<>();
-        writer.setDelegates(Arrays.asList(new RequestWriter(), blockedIpJpaItemWriter()));
+        writer.setDelegates(Arrays.asList(consoleBlockedIpWriter(), blockedIpJpaItemWriter()));
         return writer;
     }
 
-    class RequestWriter implements ItemWriter<BlockedIp> {
-
-        @Override
-        public void write(List<? extends BlockedIp> list) throws Exception {
-            list.stream().forEach(System.out::println);
-        }
+    public ItemWriter<BlockedIp> consoleBlockedIpWriter() {
+        return (items) -> items.forEach(blockedIp -> log.info(blockedIp.toString()));
     }
 
-    @Bean
     public JpaItemWriter<Request> requestJpaItemWriter() {
         final JpaItemWriter<Request> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
         return writer;
     }
 
-    @Bean
     public JpaItemWriter<BlockedIp> blockedIpJpaItemWriter() {
         final JpaItemWriter<BlockedIp> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
         return writer;
     }
 
-    @Bean
     public Step step1() {
         return stepBuilderFactory.get("loadAllRequestsToDatabase")
                                  .<Request, Request>chunk(100000)
@@ -147,8 +138,8 @@ public class BatchConfig {
     public Job importLogsJob() {
         return jobBuilderFactory.get("importLogsJob")
                                 .incrementer(new RunIdIncrementer())
-                                .start(step2())
-                                // .next(step2())
+                                .start(step1())
+                                .next(step2())
                                 .build();
     }
 }
