@@ -4,9 +4,15 @@ import com.wallethub.batch.mappers.RequestMapper;
 import com.wallethub.batch.providers.RequestQueryProvider;
 import com.wallethub.domain.Request;
 import com.wallethub.util.ArgumentsData;
+import com.wallethub.util.Util;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -23,7 +29,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import javax.persistence.EntityManagerFactory;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
@@ -68,14 +76,14 @@ public class BatchConfig {
                 .name("jpaReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryProvider(queryProvider)
-                .pageSize(1000)
+                .pageSize(100000)
                 .build();
     }
 
     @Bean
     public Step step2() {
         return stepBuilderFactory.get("retrieveFilteredRequests")
-                .<Request, Request>chunk(1000)
+                .<Request, Request>chunk(1000000)
                 .reader(itemReader())
                 .writer(new RequestWriter())
                 .build();
@@ -83,9 +91,19 @@ public class BatchConfig {
 
     class RequestWriter implements ItemWriter<Request> {
 
+        private List<Request> blockedIps = new LinkedList<>();
+
         @Override
         public void write(List<? extends Request> list) throws Exception {
-            list.stream().forEach(System.out::println);
+            list.stream()
+                    .filter(req -> Util.isBetween(argumentsData.getStartDate(), argumentsData.getEndDate(), req.getDate()))
+                    .forEach( req -> blockedIps.add(req));
+        }
+
+        @AfterStep
+        public ExitStatus afterStep(StepExecution stepExecution) {
+            System.out.println("\n################ Total rqs: " + this.blockedIps.size());
+            return ExitStatus.COMPLETED;
         }
     }
 
@@ -99,7 +117,7 @@ public class BatchConfig {
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("loadAllRequestsToDatabase")
-                                 .<Request, Request>chunk(10000)
+                                 .<Request, Request>chunk(100000)
                                  .reader(reader())
                                  .writer(requestJpaItemWriter())
                                  .build();

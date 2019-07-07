@@ -1,14 +1,15 @@
 package com.wallethub.util;
 
 import com.wallethub.enums.Duration;
-import static com.wallethub.enums.Duration.DAILY;
-import static com.wallethub.enums.Duration.HOURLY;
 import lombok.Builder;
 import lombok.Data;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import java.time.LocalDateTime;
+
+import static com.wallethub.enums.Duration.DAILY;
+import static com.wallethub.enums.Duration.HOURLY;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Data
 @Builder(builderMethodName = "with")

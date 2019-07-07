@@ -11,8 +11,10 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@NamedQuery(name="findRequestByDate", query = "SELECT r FROM Request r WHERE r.date = :date")
+@NamedQuery(name=Request.REQUESTS_IN_DATE_RANGE_QUERY, query = "SELECT req FROM Request req WHERE req.date BETWEEN :startDate AND :endDate ORDER BY req.date")
 public class Request {
+
+    public static final String REQUESTS_IN_DATE_RANGE_QUERY = "findRequestsInDateRange";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

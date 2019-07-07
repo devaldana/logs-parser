@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.Query;
 
+import java.time.LocalDateTime;
+
+import static com.wallethub.util.Global.END_DATE_ARG;
+import static com.wallethub.util.Global.START_DATE_ARG;
+
 @Setter
 @Component
 public class RequestQueryProvider extends AbstractJpaQueryProvider {
@@ -20,10 +25,9 @@ public class RequestQueryProvider extends AbstractJpaQueryProvider {
 
     @Override
     public Query createQuery() {
-        System.out.println(argumentsData.getStartDate());
-        System.out.println(argumentsData.getEndDate());
-        Query namedQuery = getEntityManager().createNamedQuery("findRequestByDate", Request.class);
-        namedQuery.setParameter("date", argumentsData.getStartDate());
+        Query namedQuery = getEntityManager().createNamedQuery(Request.REQUESTS_IN_DATE_RANGE_QUERY, Request.class);
+        namedQuery.setParameter(START_DATE_ARG, argumentsData.getStartDate());
+        namedQuery.setParameter(END_DATE_ARG, argumentsData.getEndDate());
         return namedQuery;
     }
 
