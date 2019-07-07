@@ -87,13 +87,13 @@ public class ArgsValidator {
 
     private static void validateThreshold(final String threshold) {
         log.info("Validating threshold argument: {}", threshold);
-        final int thresholdNumber;
+        final int thresholdValue;
         try {
-            thresholdNumber = Integer.parseInt(threshold);
+            thresholdValue = Integer.parseInt(threshold);
         } catch (Exception exception) {
             throw new IllegalArgumentException("Invalid threshold argument, must be a number.");
         }
-        if(thresholdNumber <= 0)
+        if(thresholdValue <= 0)
             throw new IllegalArgumentException("Threshold must be greater than zero (0).");
     }
 

@@ -14,6 +14,7 @@ import static java.util.Objects.nonNull;
 @Data
 @Builder(builderMethodName = "with")
 public class ArgumentsData {
+
     private String accessLogFilePath;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -28,7 +29,6 @@ public class ArgumentsData {
                 endDate = startDate.plusHours(1);
             }
         }
-
         return endDate;
     }
 }

@@ -21,11 +21,11 @@ public class BlockedIpQueryProvider extends AbstractJpaQueryProvider {
 
     @Override
     public Query createQuery() {
-        final Query namedQuery = getEntityManager().createNamedQuery(BLOCKED_IPS_QUERY, BlockedIp.class);
-        namedQuery.setParameter(START_DATE_ARG, argumentsData.getStartDate());
-        namedQuery.setParameter(END_DATE_ARG, argumentsData.getEndDate());
-        namedQuery.setParameter(THRESHOLD_ARG, argumentsData.getThreshold());
-        return namedQuery;
+        final Query query = getEntityManager().createNamedQuery(BLOCKED_IPS_QUERY, BlockedIp.class);
+        query.setParameter(START_DATE_ARG, argumentsData.getStartDate());
+        query.setParameter(END_DATE_ARG, argumentsData.getEndDate());
+        query.setParameter(THRESHOLD_ARG, argumentsData.getThreshold());
+        return query;
     }
 
     @Override

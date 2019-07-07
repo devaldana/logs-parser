@@ -3,6 +3,7 @@ package com.wallethub.config;
 import com.wallethub.enums.Duration;
 import com.wallethub.util.ArgumentsData;
 import com.wallethub.util.Util;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -14,13 +15,10 @@ import static com.wallethub.util.Global.START_DATE_ARG;
 import static com.wallethub.util.Global.THRESHOLD_ARG;
 
 @Configuration
+@AllArgsConstructor
 public class GeneralConfig {
 
     private final Environment env;
-
-    public GeneralConfig(final Environment env) {
-        this.env = env;
-    }
 
     @Bean
     public ArgumentsData argumentsData() {

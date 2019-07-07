@@ -21,8 +21,8 @@ public class BatchConfig {
     public Job importLogsJob() {
         return jobBuilderFactory.get("importLogsJob")
                 .incrementer(new RunIdIncrementer())
-                .start(stepsBuilder.step2())
-                // .next(stepsBuilder.step2())
+                .start(stepsBuilder.step1())
+                .next(stepsBuilder.step2())
                 .build();
     }
 }

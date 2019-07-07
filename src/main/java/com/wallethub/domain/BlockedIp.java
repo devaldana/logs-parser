@@ -20,6 +20,7 @@ import static com.wallethub.util.Global.BLOCKED_IPS_QUERY;
                 "HAVING COUNT(ip) > :threshold",
         resultClass = BlockedIp.class)
 public class BlockedIp extends BaseEntity {
+
     private String ip;
     private int attempts;
     private String message;

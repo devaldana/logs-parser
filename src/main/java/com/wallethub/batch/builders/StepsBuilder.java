@@ -97,6 +97,7 @@ public class StepsBuilder {
 
     private ItemProcessor<BlockedIp, BlockedIp> blockedIpProcessor() {
         return (blockedIp) -> {
+            // id set to null because will be inserted (not updated) and it is auto-generated
             blockedIp.setId(null);
             blockedIp.setMessage(JobHelper.getBlockedIpMessage(blockedIp, argumentsData));
             return blockedIp;
@@ -115,12 +116,12 @@ public class StepsBuilder {
 
     private StepExecutionListener step2ExecutionListener() {
         return new StepExecutionListener() {
-            public void beforeStep(StepExecution stepExecution) {
-                log.info("Starting blocked ips listing :.\n\n= = = START BLOCKED IPS LIST = = =");
+            public void beforeStep(final StepExecution stepExecution) {
+                log.info(":.\n\n= = = START BLOCKED IPs LIST = = =");
             }
 
-            public ExitStatus afterStep(StepExecution stepExecution) {
-                log.info(".:\n= = =  END BLOCKED IPS LIST  = = =\n\n");
+            public ExitStatus afterStep(final StepExecution stepExecution) {
+                log.info(".:\n= = =  END BLOCKED IPs LIST  = = =\n");
                 return ExitStatus.COMPLETED;
             }
         };

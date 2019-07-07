@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "requests")
 public class Request extends BaseEntity {
+
     private LocalDateTime date;
     private String ip;
     private String resource;

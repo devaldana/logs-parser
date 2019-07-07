@@ -11,9 +11,9 @@ import static java.util.Objects.isNull;
 public class RequestMapper implements FieldSetMapper<Request> {
 
     @Override
-    public Request mapFieldSet(FieldSet fieldSet) {
+    public Request mapFieldSet(final FieldSet fieldSet) {
         if(isNull(fieldSet)) return null;
-        Request request = new Request();
+        final Request request = new Request();
         request.setDate(Util.parseStringToLocalDateTime(fieldSet.readString(0), SPACE_SEPARATOR));
         request.setIp(fieldSet.readString(1));
         request.setResource(fieldSet.readString(2));
