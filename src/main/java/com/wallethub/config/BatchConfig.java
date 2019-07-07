@@ -1,5 +1,6 @@
 package com.wallethub.config;
 
+import com.wallethub.batch.helpers.JobHelper;
 import com.wallethub.batch.mappers.RequestMapper;
 import com.wallethub.batch.providers.RequestQueryProvider;
 import com.wallethub.domain.BlockedIp;
@@ -27,7 +28,6 @@ import org.springframework.core.io.FileSystemResource;
 
 import javax.persistence.EntityManagerFactory;
 import java.util.Arrays;
-import java.util.List;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
@@ -55,7 +55,33 @@ public class BatchConfig {
         this.argumentsData = argumentsData;
     }
 
-    public FlatFileItemReader<Request> reader() {
+    @Bean
+    public Job importLogsJob() {
+        return jobBuilderFactory.get("importLogsJob")
+                .incrementer(new RunIdIncrementer())
+                .start(step1())
+                .next(step2())
+                .build();
+    }
+
+    public Step step1() {
+        return stepBuilderFactory.get("loadAllRequestsToDatabase")
+                .<Request, Request>chunk(100000)
+                .reader(logFileReader())
+                .writer(requestJpaWriter())
+                .build();
+    }
+
+    public Step step2() {
+        return stepBuilderFactory.get("retrieveFilteredRequests")
+                .<BlockedIp, BlockedIp>chunk(1000000)
+                .reader(blockedIpJpaReader())
+                .processor(blockedIpProcessor())
+                .writer(compositeItemWriter())
+                .build();
+    }
+
+    public FlatFileItemReader<Request> logFileReader() {
         final FlatFileItemReader<Request> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(argumentsData.getAccessLogFilePath()));
         final DefaultLineMapper<Request> lineMapper = new DefaultLineMapper<>();
@@ -65,7 +91,13 @@ public class BatchConfig {
         return reader;
     }
 
-    public JpaPagingItemReader<BlockedIp> itemReader() {
+    public JpaItemWriter<Request> requestJpaWriter() {
+        final JpaItemWriter<Request> writer = new JpaItemWriter<>();
+        writer.setEntityManagerFactory(entityManagerFactory);
+        return writer;
+    }
+
+    public JpaPagingItemReader<BlockedIp> blockedIpJpaReader() {
         return new JpaPagingItemReaderBuilder<BlockedIp>()
                 .name("jpaReader")
                 .entityManagerFactory(entityManagerFactory)
@@ -74,35 +106,15 @@ public class BatchConfig {
                 .build();
     }
 
-    public ItemProcessor<BlockedIp, BlockedIp> itemProcessor() {
+    public ItemProcessor<BlockedIp, BlockedIp> blockedIpProcessor() {
         return (blockedIp) -> {
             blockedIp.setId(null);
-            blockedIp.setMessage(getBlockedIpMessage(blockedIp));
+            blockedIp.setMessage(JobHelper.getBlockedIpMessage(blockedIp, argumentsData));
             return blockedIp;
         };
     }
 
-    private String getBlockedIpMessage(final BlockedIp blockedIp){
-        return new StringBuilder()
-                    .append("Blocked because of exceed the requests threshold [")
-                    .append(argumentsData.getThreshold())
-                    .append("] between ")
-                    .append(argumentsData.getStartDate())
-                    .append(" and ")
-                    .append(argumentsData.getEndDate())
-                    .append(", number of attempts: ")
-                    .append(blockedIp.getAttempts())
-                    .toString();
-    }
 
-    public Step step2() {
-        return stepBuilderFactory.get("retrieveFilteredRequests")
-                .<BlockedIp, BlockedIp>chunk(1000000)
-                .reader(itemReader())
-                .processor(itemProcessor())
-                .writer(compositeItemWriter())
-                .build();
-    }
 
     public CompositeItemWriter<BlockedIp> compositeItemWriter() {
         CompositeItemWriter<BlockedIp> writer = new CompositeItemWriter<>();
@@ -114,11 +126,6 @@ public class BatchConfig {
         return (items) -> items.forEach(blockedIp -> log.info(blockedIp.toString()));
     }
 
-    public JpaItemWriter<Request> requestJpaItemWriter() {
-        final JpaItemWriter<Request> writer = new JpaItemWriter<>();
-        writer.setEntityManagerFactory(entityManagerFactory);
-        return writer;
-    }
 
     public JpaItemWriter<BlockedIp> blockedIpJpaItemWriter() {
         final JpaItemWriter<BlockedIp> writer = new JpaItemWriter<>();
@@ -126,20 +133,7 @@ public class BatchConfig {
         return writer;
     }
 
-    public Step step1() {
-        return stepBuilderFactory.get("loadAllRequestsToDatabase")
-                                 .<Request, Request>chunk(100000)
-                                 .reader(reader())
-                                 .writer(requestJpaItemWriter())
-                                 .build();
-    }
 
-    @Bean
-    public Job importLogsJob() {
-        return jobBuilderFactory.get("importLogsJob")
-                                .incrementer(new RunIdIncrementer())
-                                .start(step1())
-                                .next(step2())
-                                .build();
-    }
+
+
 }

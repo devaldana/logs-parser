@@ -13,7 +13,7 @@ import static com.wallethub.util.Global.BLOCKED_IPS_QUERY;
 @Table(name = "ips_blacklist")
 @NamedNativeQuery(
         name=BLOCKED_IPS_QUERY,
-        query = "SELECT id, '' AS message, ip, count(ip) AS attempts " +
+        query = "SELECT id, '' AS message, ip, COUNT(ip) AS attempts " +
                 "FROM requests " +
                 "WHERE date BETWEEN :startDate AND :endDate " +
                 "GROUP BY ip " +
