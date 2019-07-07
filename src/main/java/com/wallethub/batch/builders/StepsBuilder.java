@@ -22,7 +22,10 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManagerFactory;
@@ -39,7 +42,7 @@ public class StepsBuilder {
     private final ArgumentsData argumentsData;
     private final EntityManagerFactory entityManagerFactory;
     private final BlockedIpQueryProvider queryProvider;
-    //TODO: what about chunk size?
+
     /*
      * = = = = = = = = = = = = = = STEP 1 CONFIG  = = = = = = = = = = = = = =
      *
@@ -48,10 +51,17 @@ public class StepsBuilder {
      */
     public Step step1() {
         return stepBuilderFactory.get("loadAllRequestsToDatabase")
-                .<Request, Request>chunk(20000)
+                .<Request, Request>chunk(1000)
                 .reader(logFileReader())
                 .writer(requestJpaWriter())
+                .taskExecutor(taskExecutor())
+                .throttleLimit(10)
                 .build();
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor(){
+        return new SimpleAsyncTaskExecutor("spring_batch");
     }
 
     private FlatFileItemReader<Request> logFileReader() {
@@ -78,7 +88,7 @@ public class StepsBuilder {
      */
     public Step step2() {
         return stepBuilderFactory.get("loadBlockedIps")
-                .<BlockedIp, BlockedIp>chunk(100)
+                .<BlockedIp, BlockedIp>chunk(1000)
                 .reader(blockedIpJpaReader())
                 .processor(blockedIpProcessor())
                 .writer(blockedIpWriter())
@@ -91,7 +101,7 @@ public class StepsBuilder {
                 .name("blockedIpJpaReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryProvider(queryProvider)
-                .pageSize(100)
+                .pageSize(1000)
                 .build();
     }
 
