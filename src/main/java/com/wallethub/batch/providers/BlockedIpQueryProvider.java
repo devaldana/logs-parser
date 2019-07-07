@@ -2,6 +2,7 @@ package com.wallethub.batch.providers;
 
 import com.wallethub.domain.BlockedIp;
 import com.wallethub.util.ArgumentsData;
+import lombok.AllArgsConstructor;
 import org.springframework.batch.item.database.orm.AbstractJpaQueryProvider;
 import org.springframework.stereotype.Component;
 
@@ -13,17 +14,14 @@ import static com.wallethub.util.Global.START_DATE_ARG;
 import static com.wallethub.util.Global.THRESHOLD_ARG;
 
 @Component
-public class RequestQueryProvider extends AbstractJpaQueryProvider {
+@AllArgsConstructor
+public class BlockedIpQueryProvider extends AbstractJpaQueryProvider {
 
     private final ArgumentsData argumentsData;
 
-    public RequestQueryProvider(final ArgumentsData argumentsData) {
-        this.argumentsData = argumentsData;
-    }
-
     @Override
     public Query createQuery() {
-        Query namedQuery = getEntityManager().createNamedQuery(BLOCKED_IPS_QUERY, BlockedIp.class);
+        final Query namedQuery = getEntityManager().createNamedQuery(BLOCKED_IPS_QUERY, BlockedIp.class);
         namedQuery.setParameter(START_DATE_ARG, argumentsData.getStartDate());
         namedQuery.setParameter(END_DATE_ARG, argumentsData.getEndDate());
         namedQuery.setParameter(THRESHOLD_ARG, argumentsData.getThreshold());

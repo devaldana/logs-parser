@@ -1,14 +1,17 @@
-package com.wallethub.batch.steps;
+package com.wallethub.batch.builders;
 
 import com.wallethub.batch.helpers.JobHelper;
 import com.wallethub.batch.mappers.RequestMapper;
-import com.wallethub.batch.providers.RequestQueryProvider;
+import com.wallethub.batch.providers.BlockedIpQueryProvider;
 import com.wallethub.domain.BlockedIp;
 import com.wallethub.domain.Request;
 import com.wallethub.util.ArgumentsData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
@@ -35,7 +38,7 @@ public class StepsBuilder {
     private final StepBuilderFactory stepBuilderFactory;
     private final ArgumentsData argumentsData;
     private final EntityManagerFactory entityManagerFactory;
-    private final RequestQueryProvider queryProvider;
+    private final BlockedIpQueryProvider queryProvider;
 
     /*
      * = = = = = = = = = = = = = = STEP 1 CONFIG  = = = = = = = = = = = = = =
@@ -79,6 +82,7 @@ public class StepsBuilder {
                 .reader(blockedIpJpaReader())
                 .processor(blockedIpProcessor())
                 .writer(blockedIpWriter())
+                .listener(step2ExecutionListener())
                 .build();
     }
 
@@ -109,11 +113,22 @@ public class StepsBuilder {
         return (items) -> items.forEach(blockedIp -> log.info(blockedIp.toString()));
     }
 
+    private StepExecutionListener step2ExecutionListener() {
+        return new StepExecutionListener() {
+            public void beforeStep(StepExecution stepExecution) {
+                log.info("Starting blocked ips listing :.\n\n= = = START BLOCKED IPS LIST = = =");
+            }
+
+            public ExitStatus afterStep(StepExecution stepExecution) {
+                log.info(".:\n= = =  END BLOCKED IPS LIST  = = =\n\n");
+                return ExitStatus.COMPLETED;
+            }
+        };
+    }
+
     private JpaItemWriter<BlockedIp> blockedIpJpaWriter() {
         final JpaItemWriter<BlockedIp> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
         return writer;
     }
-
-    //TODO: write header to beauty blockedIpConsoleWriter output
 }
