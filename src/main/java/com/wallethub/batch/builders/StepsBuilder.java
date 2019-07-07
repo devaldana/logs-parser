@@ -48,7 +48,7 @@ public class StepsBuilder {
      */
     public Step step1() {
         return stepBuilderFactory.get("loadAllRequestsToDatabase")
-                .<Request, Request>chunk(100000)
+                .<Request, Request>chunk(20000)
                 .reader(logFileReader())
                 .writer(requestJpaWriter())
                 .build();
@@ -78,7 +78,7 @@ public class StepsBuilder {
      */
     public Step step2() {
         return stepBuilderFactory.get("loadBlockedIps")
-                .<BlockedIp, BlockedIp>chunk(1000000)
+                .<BlockedIp, BlockedIp>chunk(100)
                 .reader(blockedIpJpaReader())
                 .processor(blockedIpProcessor())
                 .writer(blockedIpWriter())
@@ -91,7 +91,7 @@ public class StepsBuilder {
                 .name("blockedIpJpaReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryProvider(queryProvider)
-                .pageSize(100000)
+                .pageSize(100)
                 .build();
     }
 

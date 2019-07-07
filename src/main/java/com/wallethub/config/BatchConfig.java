@@ -12,7 +12,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Slf4j
 @Configuration
@@ -41,8 +41,8 @@ public class BatchConfig {
 
             public void afterJob(JobExecution jobExecution) {
                 final long start = jobExecution.getCreateTime().getTime();
-                final long end = jobExecution.getEndTime().getTime();
-                final long totalSeconds = TimeUnit.SECONDS.convert(end - start, TimeUnit.MILLISECONDS);
+                final long totalMillis = jobExecution.getEndTime().getTime() - start;
+                final long totalSeconds = MILLISECONDS.toSeconds(totalMillis);
                 log.info("Job total execution time: {}s", totalSeconds);
             }
         };
