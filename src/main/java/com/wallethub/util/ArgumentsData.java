@@ -11,6 +11,10 @@ import static com.wallethub.enums.Duration.HOURLY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Data
 @Builder(builderMethodName = "with")
 public class ArgumentsData {

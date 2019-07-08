@@ -18,6 +18,10 @@ import static com.wallethub.util.Global.THRESHOLD_ARG;
 import static com.wallethub.util.Util.parseStringToLocalDateTime;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Slf4j
 public class ArgsValidator {
 

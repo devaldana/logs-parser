@@ -8,6 +8,10 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import static com.wallethub.util.Global.SPACE_SEPARATOR;
 import static java.util.Objects.isNull;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 public class RequestMapper implements FieldSetMapper<Request> {
 
     @Override

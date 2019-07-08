@@ -3,6 +3,10 @@ package com.wallethub.batch.helpers;
 import com.wallethub.domain.BlockedIp;
 import com.wallethub.util.ArgumentsData;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 final public class JobHelper {
 
     public static String getBlockedIpMessage(final BlockedIp blockedIp, final ArgumentsData argumentsData){

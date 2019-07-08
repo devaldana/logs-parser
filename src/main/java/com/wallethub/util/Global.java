@@ -1,5 +1,9 @@
 package com.wallethub.util;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 final public class Global {
 
     public static final String START_DATE_ARG = "startDate";

@@ -33,6 +33,10 @@ import java.util.Arrays;
 
 import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Slf4j
 @Component
 @AllArgsConstructor

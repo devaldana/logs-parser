@@ -8,6 +8,10 @@ import javax.persistence.Table;
 
 import static com.wallethub.util.Global.BLOCKED_IPS_QUERY;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Data
 @Entity
 @Table(name = "ips_blacklist")

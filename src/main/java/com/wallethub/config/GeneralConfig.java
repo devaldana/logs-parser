@@ -14,6 +14,10 @@ import static com.wallethub.util.Global.DURATION_ARG;
 import static com.wallethub.util.Global.START_DATE_ARG;
 import static com.wallethub.util.Global.THRESHOLD_ARG;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Configuration
 @AllArgsConstructor
 public class GeneralConfig {

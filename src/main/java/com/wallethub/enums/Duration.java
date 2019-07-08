@@ -3,6 +3,10 @@ package com.wallethub.enums;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 public enum Duration {
 
     HOURLY("hourly"),

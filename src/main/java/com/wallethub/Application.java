@@ -9,6 +9,10 @@ import java.util.Arrays;
 
 import static com.wallethub.util.ArgsValidator.validateArgs;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Slf4j
 @SpringBootApplication
 public class Application {

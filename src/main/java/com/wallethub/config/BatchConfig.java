@@ -14,6 +14,10 @@ import org.springframework.context.annotation.Configuration;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Slf4j
 @Configuration
 @AllArgsConstructor

@@ -13,6 +13,10 @@ import static com.wallethub.util.Global.END_DATE_ARG;
 import static com.wallethub.util.Global.START_DATE_ARG;
 import static com.wallethub.util.Global.THRESHOLD_ARG;
 
+/**
+ * @author David Aldana
+ * @since 2018.07
+ */
 @Component
 @AllArgsConstructor
 public class BlockedIpQueryProvider extends AbstractJpaQueryProvider {
