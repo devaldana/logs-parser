@@ -16,7 +16,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Slf4j
 @Configuration

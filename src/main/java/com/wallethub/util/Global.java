@@ -2,7 +2,7 @@ package com.wallethub.util;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 final public class Global {
 

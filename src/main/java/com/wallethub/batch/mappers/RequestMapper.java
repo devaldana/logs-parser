@@ -10,7 +10,7 @@ import static java.util.Objects.isNull;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 public class RequestMapper implements FieldSetMapper<Request> {
 

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Data
 @Entity

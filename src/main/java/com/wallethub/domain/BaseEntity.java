@@ -9,7 +9,7 @@ import javax.persistence.MappedSuperclass;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Data
 @MappedSuperclass

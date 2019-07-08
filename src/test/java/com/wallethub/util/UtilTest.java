@@ -8,6 +8,10 @@ import static com.wallethub.util.Global.DOT_SEPARATOR;
 import static com.wallethub.util.Global.SPACE_SEPARATOR;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author David Aldana
+ * @since 2019.07
+ */
 public class UtilTest {
 
     @Test

@@ -12,6 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * @author David Aldana
+ * @since 2019.07
+ */
 public class ArgsValidatorTest {
 
     private static final String ACCESS_LOG_TEST_PATH = ".." + File.separator + "qwqEhvLchSamETmXwp.log";

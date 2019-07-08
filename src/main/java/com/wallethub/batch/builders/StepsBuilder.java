@@ -22,10 +22,8 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.CompositeItemWriter;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManagerFactory;
@@ -35,7 +33,7 @@ import static com.wallethub.util.Global.LOG_FILE_DELIMITER;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Slf4j
 @Component
@@ -58,14 +56,9 @@ public class StepsBuilder {
                 .<Request, Request>chunk(1000)
                 .reader(logFileReader())
                 .writer(requestJpaWriter())
-                .taskExecutor(taskExecutor())
+                .taskExecutor(new SimpleAsyncTaskExecutor("spring_batch"))
                 .throttleLimit(10)
                 .build();
-    }
-
-    @Bean
-    public TaskExecutor taskExecutor(){
-        return new SimpleAsyncTaskExecutor("spring_batch");
     }
 
     private FlatFileItemReader<Request> logFileReader() {

@@ -8,6 +8,10 @@ import static com.wallethub.enums.Duration.DAILY;
 import static com.wallethub.enums.Duration.HOURLY;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author David Aldana
+ * @since 2019.07
+ */
 public class ArgumentsDataTest {
 
     @Test

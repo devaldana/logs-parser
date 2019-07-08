@@ -16,7 +16,7 @@ import static com.wallethub.util.Global.THRESHOLD_ARG;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Configuration
 @AllArgsConstructor

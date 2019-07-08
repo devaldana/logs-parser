@@ -10,7 +10,7 @@ import static com.wallethub.util.Global.BLOCKED_IPS_QUERY;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Data
 @Entity

@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 public enum Duration {
 

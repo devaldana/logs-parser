@@ -13,7 +13,7 @@ import static java.util.Objects.nonNull;
 
 /**
  * @author David Aldana
- * @since 2018.07
+ * @since 2019.07
  */
 @Data
 @Builder(builderMethodName = "with")
